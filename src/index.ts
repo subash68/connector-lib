@@ -17,6 +17,7 @@ export type { SolanaConnectorConfig } from "./connectors/SolanaConnector";
 
 // Decorators
 export { ConnectorDecorator } from "./decorators/ConnectorDecorator";
+export { EVMConnectorDecorator } from "./decorators/EVMConnectorDecorator";
 export { RetryDecorator } from "./decorators/RetryDecorator";
 export type { RetryDecoratorOptions } from "./decorators/RetryDecorator";
 export { LoggingDecorator } from "./decorators/LoggingDecorator";

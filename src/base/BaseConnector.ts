@@ -1,8 +1,8 @@
-import type { IBaseConnector } from '../interfaces/IBaseConnector.js';
+import type { IConnectionManager } from '../interfaces/IConnectionManager.js';
 import type { ConnectorConfig, NetworkConfig } from '../types/index.js';
 import { ConnectionError, NotConnectedError } from '../errors/index.js';
 
-export abstract class BaseConnector implements IBaseConnector {
+export abstract class BaseConnector implements IConnectionManager {
   protected readonly config: ConnectorConfig;
   protected readonly network: NetworkConfig;
   private _connected = false;
@@ -44,20 +44,8 @@ export abstract class BaseConnector implements IBaseConnector {
     this._connected = false;
   }
 
-  async getBlockNumber(): Promise<bigint> {
-    this.assertConnected();
-    return this.doGetBlockNumber();
-  }
-
-  async getBalance(address: string): Promise<bigint> {
-    this.assertConnected();
-    return this.doGetBalance(address);
-  }
-
   protected abstract doConnect(): Promise<void>;
   protected abstract doDisconnect(): Promise<void>;
-  protected abstract doGetBlockNumber(): Promise<bigint>;
-  protected abstract doGetBalance(address: string): Promise<bigint>;
 
   protected assertConnected(): void {
     if (!this._connected) throw new NotConnectedError();

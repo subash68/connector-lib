@@ -1,9 +1,10 @@
 import pLimit, { type LimitFunction } from 'p-limit';
 import { BaseConnector } from '../base/BaseConnector.js';
+import type { INodeReader } from '../interfaces/INodeReader.js';
 import type { NodeProviderConfig } from '../types/index.js';
 import { RetryExhaustedError } from '../errors/index.js';
 
-export abstract class NodeProviderBase extends BaseConnector {
+export abstract class NodeProviderBase extends BaseConnector implements INodeReader {
   protected readonly maxRetries: number;
   protected readonly retryDelay: number;
   protected readonly limiter: LimitFunction;
@@ -15,6 +16,16 @@ export abstract class NodeProviderBase extends BaseConnector {
     this.limiter = pLimit(config.concurrency);
   }
 
+  async getBlockNumber(): Promise<bigint> {
+    this.assertConnected();
+    return this.doGetBlockNumber();
+  }
+
+  async getBalance(address: string): Promise<bigint> {
+    this.assertConnected();
+    return this.doGetBalance(address);
+  }
+
   protected override async doConnect(): Promise<void> {
     await this.rpcCall<string>('eth_blockNumber', []);
   }
@@ -23,12 +34,12 @@ export abstract class NodeProviderBase extends BaseConnector {
     // stateless HTTP — nothing to close
   }
 
-  protected override async doGetBlockNumber(): Promise<bigint> {
+  protected async doGetBlockNumber(): Promise<bigint> {
     const hex = await this.withRetry(() => this.rpcCall<string>('eth_blockNumber', []));
     return BigInt(hex);
   }
 
-  protected override async doGetBalance(address: string): Promise<bigint> {
+  protected async doGetBalance(address: string): Promise<bigint> {
     const hex = await this.withRetry(() =>
       this.rpcCall<string>('eth_getBalance', [address, 'latest'])
     );

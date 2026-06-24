@@ -49,7 +49,16 @@ export class EVMConnector extends NodeProviderBase implements ITokenReader {
       }),
     }) as PublicClient;
 
-    await this.client.getBlockNumber();
+    const [, actualChainId] = await Promise.all([
+      this.client.getBlockNumber(),
+      this.client.getChainId(),
+    ]);
+
+    if (actualChainId !== this.chainId) {
+      throw new Error(
+        `Chain ID mismatch: declared ${this.chainId} but RPC returned ${actualChainId}`
+      );
+    }
   }
 
   protected override async doDisconnect(): Promise<void> {
