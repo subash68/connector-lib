@@ -1,0 +1,19 @@
+{
+  "name": "connector-lib-client",
+  "version": "0.1.0",
+  "description": "Example client consuming connector-lib to read Polygon POL balance",
+  "type": "module",
+  "scripts": {
+    "start": "ts-node --esm index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "connector-lib": "file:../",
+    "viem": "^2.38.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

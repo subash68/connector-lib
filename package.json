@@ -1,0 +1,37 @@
+{
+  "name": "connector-lib",
+  "version": "0.1.0",
+  "description": "TypeScript blockchain connector library for EVM and Solana networks",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["blockchain", "evm", "solana", "connector", "viem"],
+  "license": "MIT",
+  "dependencies": {
+    "@solana/web3.js": "^1.98.0",
+    "p-limit": "^7.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.9.3",
+    "viem": "^2.38.0"
+  },
+  "peerDependencies": {
+    "viem": "^2.38.0"
+  }
+}
