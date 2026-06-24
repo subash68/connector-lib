@@ -1,5 +1,9 @@
-// Interface
+// Interfaces
 export type { IBaseConnector } from "./interfaces/IBaseConnector";
+export type { IConnectionManager } from "./interfaces/IConnectionManager";
+export type { INodeReader } from "./interfaces/INodeReader";
+export type { ITokenReader } from "./interfaces/ITokenReader";
+export type { ISplTokenReader } from "./interfaces/ISplTokenReader";
 
 // Base
 export { BaseConnector } from "./base/BaseConnector";
@@ -35,6 +39,8 @@ export type {
   TokenInfo,
   TokenBalanceResult,
   SolanaAccountInfo,
+  TokenAmount,
+  SplTokenAccount,
 } from "./types/index";
 
 // Errors

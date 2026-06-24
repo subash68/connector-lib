@@ -1,16 +1,19 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { NodeProviderBase } from './NodeProviderBase.js';
+import type { ISplTokenReader } from '../interfaces/ISplTokenReader.js';
 import type {
   NodeProviderConfig,
   TransactionResponse,
   SolanaAccountInfo,
+  TokenAmount,
+  SplTokenAccount,
 } from '../types/index.js';
 
 export interface SolanaConnectorConfig extends NodeProviderConfig {
   commitment?: 'processed' | 'confirmed' | 'finalized';
 }
 
-export class SolanaConnector extends NodeProviderBase {
+export class SolanaConnector extends NodeProviderBase implements ISplTokenReader {
   private connection!: Connection;
   private readonly commitment: 'processed' | 'confirmed' | 'finalized';
 
@@ -82,6 +85,63 @@ export class SolanaConnector extends NodeProviderBase {
       data: new Uint8Array(info.data),
     };
   }
+
+  // ── ISplTokenReader ─────────────────────────────────────────────────────────
+
+  private static readonly TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
+
+  async getSplTokenBalance(owner: string, mint: string): Promise<TokenAmount> {
+    this.assertConnected();
+    const accounts = await this.withRetry(() =>
+      this.connection.getParsedTokenAccountsByOwner(
+        new PublicKey(owner),
+        { mint: new PublicKey(mint) }
+      )
+    );
+
+    if (accounts.value.length === 0) {
+      return { amount: 0n, decimals: 0, uiAmount: 0 };
+    }
+
+    const parsed = this.parsedTokenInfo(accounts.value[0].account.data.parsed);
+    return {
+      amount: BigInt(parsed.tokenAmount.amount),
+      decimals: parsed.tokenAmount.decimals,
+      uiAmount: parsed.tokenAmount.uiAmount,
+    };
+  }
+
+  async getSplTokenAccounts(owner: string): Promise<SplTokenAccount[]> {
+    this.assertConnected();
+    const accounts = await this.withRetry(() =>
+      this.connection.getParsedTokenAccountsByOwner(
+        new PublicKey(owner),
+        { programId: new PublicKey(SolanaConnector.TOKEN_PROGRAM_ID) }
+      )
+    );
+
+    return accounts.value.map((acc) => {
+      const parsed = this.parsedTokenInfo(acc.account.data.parsed);
+      return {
+        pubkey: acc.pubkey.toBase58(),
+        mint: parsed.mint,
+        amount: {
+          amount: BigInt(parsed.tokenAmount.amount),
+          decimals: parsed.tokenAmount.decimals,
+          uiAmount: parsed.tokenAmount.uiAmount,
+        },
+      };
+    });
+  }
+
+  private parsedTokenInfo(parsed: unknown): {
+    mint: string;
+    tokenAmount: { amount: string; decimals: number; uiAmount: number | null };
+  } {
+    return (parsed as { info: { mint: string; tokenAmount: { amount: string; decimals: number; uiAmount: number | null } } }).info;
+  }
+
+  // ── Legacy ─────────────────────────────────────────────────────────────────
 
   async getTokenAccountsByOwner(
     ownerAddress: string,

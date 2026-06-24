@@ -114,3 +114,16 @@ export interface SolanaAccountInfo {
   executable: boolean;
   data: Uint8Array;
 }
+
+/** SPL token amount — raw units plus decimals, mirroring @solana/web3.js RPC shape. */
+export interface TokenAmount {
+  amount: bigint;
+  decimals: number;
+  uiAmount: number | null;
+}
+
+export interface SplTokenAccount {
+  pubkey: string;
+  mint: string;
+  amount: TokenAmount;
+}

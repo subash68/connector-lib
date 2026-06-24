@@ -1,22 +1,5 @@
-export interface IBaseConnector {
-  readonly chainId: number;
-  readonly networkName: string;
-  readonly rpcUrl: string;
+import type { IConnectionManager } from './IConnectionManager.js';
+import type { INodeReader } from './INodeReader.js';
 
-  isConnected(): boolean;
-
-  /** Initialise the underlying provider/client. Idempotent — safe to call multiple times. */
-  connect(): Promise<void>;
-
-  /** Release all resources. Idempotent. */
-  disconnect(): Promise<void>;
-
-  /** Returns the most recent confirmed block/slot number. */
-  getBlockNumber(): Promise<bigint>;
-
-  /**
-   * Returns the native balance of an address.
-   * EVM: balance in wei. Solana: balance in lamports.
-   */
-  getBalance(address: string): Promise<bigint>;
-}
+/** Composed interface: lifecycle management + generic node reads. */
+export interface IBaseConnector extends IConnectionManager, INodeReader {}

@@ -12,6 +12,7 @@ import {
   type Log,
 } from 'viem';
 import { NodeProviderBase } from './NodeProviderBase.js';
+import type { ITokenReader } from '../interfaces/ITokenReader.js';
 import type {
   NodeProviderConfig,
   TransactionResponse,
@@ -30,7 +31,7 @@ export interface EVMConnectorConfig extends NodeProviderConfig {
   viemChain?: Chain;
 }
 
-export class EVMConnector extends NodeProviderBase {
+export class EVMConnector extends NodeProviderBase implements ITokenReader {
   private client!: PublicClient;
   private readonly viemChain?: Chain;
 
@@ -191,6 +192,73 @@ export class EVMConnector extends NodeProviderBase {
       balance,
       formattedBalance: formatUnits(balance, meta.decimals),
     };
+  }
+
+  // ── ITokenReader ────────────────────────────────────────────────────────────
+
+  private static readonly ERC721_ABI = parseAbi([
+    'function ownerOf(uint256) view returns (address)',
+    'function balanceOf(address) view returns (uint256)',
+  ]);
+
+  private static readonly ERC1155_ABI = parseAbi([
+    'function balanceOf(address, uint256) view returns (uint256)',
+  ]);
+
+  async getErc20Balance(token: string, owner: string): Promise<bigint> {
+    this.assertConnected();
+    try {
+      const contract = getContract({
+        address: token as Address,
+        abi: EVMConnector.ERC20_ABI,
+        client: this.client,
+      });
+      return await this.withRetry(() => contract.read.balanceOf([owner as Address]));
+    } catch (err) {
+      throw new ContractCallError(token, 'ERC20.balanceOf', err);
+    }
+  }
+
+  async getErc721Owner(token: string, tokenId: bigint): Promise<string> {
+    this.assertConnected();
+    try {
+      const contract = getContract({
+        address: token as Address,
+        abi: EVMConnector.ERC721_ABI,
+        client: this.client,
+      });
+      return await this.withRetry(() => contract.read.ownerOf([tokenId]));
+    } catch (err) {
+      throw new ContractCallError(token, 'ERC721.ownerOf', err);
+    }
+  }
+
+  async getErc721Balance(token: string, owner: string): Promise<bigint> {
+    this.assertConnected();
+    try {
+      const contract = getContract({
+        address: token as Address,
+        abi: EVMConnector.ERC721_ABI,
+        client: this.client,
+      });
+      return await this.withRetry(() => contract.read.balanceOf([owner as Address]));
+    } catch (err) {
+      throw new ContractCallError(token, 'ERC721.balanceOf', err);
+    }
+  }
+
+  async getErc1155Balance(token: string, owner: string, tokenId: bigint): Promise<bigint> {
+    this.assertConnected();
+    try {
+      const contract = getContract({
+        address: token as Address,
+        abi: EVMConnector.ERC1155_ABI,
+        client: this.client,
+      });
+      return await this.withRetry(() => contract.read.balanceOf([owner as Address, tokenId]));
+    } catch (err) {
+      throw new ContractCallError(token, 'ERC1155.balanceOf', err);
+    }
   }
 
   // ── Private utils ───────────────────────────────────────────────────────────
