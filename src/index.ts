@@ -4,6 +4,7 @@ export type { IConnectionManager } from "./interfaces/IConnectionManager";
 export type { INodeReader } from "./interfaces/INodeReader";
 export type { ITokenReader } from "./interfaces/ITokenReader";
 export type { ISplTokenReader } from "./interfaces/ISplTokenReader";
+export type { IUtxoReader } from "./interfaces/IUtxoReader";
 
 // Base
 export { BaseConnector } from "./base/BaseConnector";
@@ -14,6 +15,8 @@ export { EVMConnector } from "./connectors/EVMConnector";
 export type { EVMConnectorConfig } from "./connectors/EVMConnector";
 export { SolanaConnector } from "./connectors/SolanaConnector";
 export type { SolanaConnectorConfig } from "./connectors/SolanaConnector";
+export { BitcoinConnector } from "./connectors/BitcoinConnector";
+export type { BitcoinConnectorConfig, BitcoinBackend } from "./connectors/BitcoinConnector";
 
 // Decorators
 export { ConnectorDecorator } from "./decorators/ConnectorDecorator";
@@ -42,6 +45,7 @@ export type {
   SolanaAccountInfo,
   TokenAmount,
   SplTokenAccount,
+  Utxo,
 } from "./types/index";
 
 // Errors

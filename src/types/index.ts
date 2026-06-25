@@ -127,3 +127,15 @@ export interface SplTokenAccount {
   mint: string;
   amount: TokenAmount;
 }
+
+// ── Bitcoin ───────────────────────────────────────────────────────────────────
+
+/** Unspent transaction output. Value is in satoshis (bigint, 10^8 base unit). */
+export interface Utxo {
+  txid: string;
+  vout: number;
+  /** Satoshis — never a BTC float. */
+  value: bigint;
+  scriptPubKey: string;
+  confirmations: number;
+}
